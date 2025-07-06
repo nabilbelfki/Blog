@@ -110,6 +110,10 @@ const Editor = ({ post }: { post: TPost | null }) => {
     const Quote = (await import("@editorjs/quote")).default;
     const Raw = (await import("@editorjs/raw")).default;
     const CheckList = (await import("@editorjs/checklist")).default;
+    const ImageTool = (await import("@editorjs/image")).default;
+    const Marker = (await import("@editorjs/marker")).default;
+    const Underline = (await import("@editorjs/underline")).default;
+    const Warning = (await import("@editorjs/warning")).default;
 
     if (!ref.current) {
       const editor = new EditorJS({
@@ -136,6 +140,36 @@ const Editor = ({ post }: { post: TPost | null }) => {
           quote: Quote,
           code: Code,
           raw: Raw,
+          marker: Marker,
+          underline: Underline,
+          warning: Warning,
+          image: {
+            class: ImageTool,
+            config: {
+              endpoints: {
+                byFile: '/api/upload-image', // Your image upload endpoint
+              },
+              additionalRequestHeaders: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+              },
+              uploader: {
+                uploadByFile(file: File) {
+                  return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                      resolve({
+                        success: 1,
+                        file: {
+                          url: reader.result as string,
+                        },
+                      });
+                    };
+                  });
+                },
+              },
+            },
+          },
         },
         onReady: () => {
           ref.current = editor;
