@@ -1,12 +1,12 @@
 import cloudinary from "@/lib/config/cloudinary";
 import prisma from "@/lib/db";
 import { getDataFromToken } from "@/utils/getDataFromToken";
-
 import { NextRequest, NextResponse } from "next/server";
 
-//@description     Create a new post
-//@route           POST /api/posts
-//@access          protected
+interface CloudinaryUploadResult {
+  secure_url: string;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const userID = await getDataFromToken(req);
@@ -18,10 +18,9 @@ export async function POST(req: NextRequest) {
     }
 
     const { title, content, image, type } = await req.json();
-
     const makePath = title.split(" ").join("-").toLowerCase();
 
-    let uploadedImage = null;
+    let uploadedImage: CloudinaryUploadResult | null = null;
     if (image !== null) {
       uploadedImage = await cloudinary.uploader.upload(image, {
         folder: "blog/articles",
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
         content,
         path: makePath,
         authorId: userID,
-        image: image !== null ? uploadedImage.secure_url : null,
+        image: uploadedImage?.secure_url || null,
         type,
       },
       include: {
