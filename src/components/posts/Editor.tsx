@@ -9,6 +9,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import TextareaAutosize from "react-textarea-autosize";
+
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Icon from "../Icon";
@@ -20,6 +21,8 @@ type TForm = {
   title: string;
   image: Blob | MediaSource;
   postType: "DRAFT" | "PUBLISHED";
+  category: string;
+  readTime: number;
 };
 
 const Editor = ({ post }: { post: TPost | null }) => {
@@ -34,7 +37,14 @@ const Editor = ({ post }: { post: TPost | null }) => {
     setValue,
     watch,
     formState: { isSubmitting, errors },
-  } = useForm<TForm>({ defaultValues: { title: post?.title } });
+  } = useForm<TForm>({ 
+    defaultValues: { 
+      title: post?.title,
+      category: post?.category || "",
+      readTime: post?.readTime || 0,
+      postType: post?.type || "DRAFT"
+    } 
+  });
   const postType = watch("postType");
 
   const [imageFile, setImageFile] = useState<any>(null);
@@ -58,6 +68,8 @@ const Editor = ({ post }: { post: TPost | null }) => {
           content: blocks,
           image: imageFile !== null ? imageFile : post?.image,
           type: data.postType,
+          category: data.category,          // Add category
+          readTime: data.readTime,          // Add readTime
           postId: post?.id,
           userId: post?.author.id,
         });
@@ -69,6 +81,8 @@ const Editor = ({ post }: { post: TPost | null }) => {
           content: blocks,
           image: imageFile,
           type: data.postType,
+          category: data.category,          // Add category
+          readTime: data.readTime,         // Add readTime
         });
         toast.success(res.data.message);
         if (data.postType === "DRAFT") {
@@ -114,6 +128,8 @@ const Editor = ({ post }: { post: TPost | null }) => {
     const Marker = (await import("@editorjs/marker")).default;
     const Underline = (await import("@editorjs/underline")).default;
     const Warning = (await import("@editorjs/warning")).default;
+    const Delimiter = (await import("@editorjs/delimiter")).default;
+    const NestedList = (await import("@editorjs/nested-list")).default;
 
     if (!ref.current) {
       const editor = new EditorJS({
@@ -131,23 +147,49 @@ const Editor = ({ post }: { post: TPost | null }) => {
               defaultLevel: 2,
             },
           },
-          list: List,
-          checkList: CheckList,
+          list: {
+            class: NestedList,
+            inlineToolbar: true,
+            config: {
+              defaultStyle: 'unordered'
+            },
+          },
+          checklist: CheckList,
           embed: Embed,
-          linkTool: LinkTool,
+          linkTool: {
+            class: LinkTool,
+            config: {
+              endpoint: '/api/fetch-url', // Your link fetching endpoint
+            }
+          },
           inlineCode: InlineCode,
-          table: Table,
-          quote: Quote,
+          table: {
+            class: Table,
+            inlineToolbar: true,
+            config: {
+              rows: 2,
+              cols: 3,
+            },
+          },
+          quote: {
+            class: Quote,
+            inlineToolbar: true,
+            config: {
+              quotePlaceholder: 'Enter a quote',
+              captionPlaceholder: 'Quote author',
+            },
+          },
           code: Code,
           raw: Raw,
           marker: Marker,
           underline: Underline,
           warning: Warning,
+          delimiter: Delimiter,
           image: {
             class: ImageTool,
             config: {
               endpoints: {
-                byFile: '/api/upload-image', // Your image upload endpoint
+                byFile: '/api/upload-image',
               },
               additionalRequestHeaders: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -303,6 +345,29 @@ const Editor = ({ post }: { post: TPost | null }) => {
               />
             )}
           </div>
+          <input 
+            type="text" 
+            placeholder="Category"
+            {...register("category")}
+            style={{    
+              width: "50%",
+              fontSize: 24,
+              marginTop: 40,
+              marginBottom: 20
+            }}
+          />
+
+          <input 
+            type="number" 
+            placeholder="Read Time Minutes" 
+            {...register("readTime", { valueAsNumber: true })}
+            style={{    
+              width: "50%",
+              fontSize: 24,
+              marginTop: 40,
+              marginBottom: 20
+            }} 
+          />
           <TextareaAutosize
             {...register("title", { required: true })}
             aria-label="Post Title"

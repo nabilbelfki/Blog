@@ -8,3 +8,8 @@ declare module "@editorjs/inline-code";
 declare module "@editorjs/quote";
 declare module "@editorjs/raw";
 declare module "@editorjs/checklist";
+declare module "@editorjs/delimiter";
+declare module "@editorjs/nested-list";
+declare module "@editorjs/personality";
+declare module "@editorjs/simple-image";
+declare module "editorjs-text-color-plugin";

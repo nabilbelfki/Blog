@@ -33,6 +33,8 @@ export async function GET(
                 id: true,
                 path: true,
                 title: true,
+                category: true,
+                readTime: true
               },
             },
           },
@@ -64,7 +66,8 @@ export async function GET(
 //@access          protected
 export async function PATCH(req: NextRequest) {
   try {
-    const { title, content, image, userId, postId, type } = await req.json();
+    // Add category and readTime to destructured request body
+    const { title, content, image, userId, postId, type, category, readTime } = await req.json();
 
     const userID = await getDataFromToken(req);
     if (!userID) {
@@ -91,12 +94,21 @@ export async function PATCH(req: NextRequest) {
 
     const updatedData: Prisma.PostUpdateInput = {};
 
+    // Add checks for category and readTime
     if (title !== post.title) {
       updatedData.title = title;
     }
 
     if (content !== post.content) {
       updatedData.content = content;
+    }
+
+    if (category !== post.category) {
+      updatedData.category = category;
+    }
+
+    if (readTime !== post.readTime) {
+      updatedData.readTime = readTime;
     }
 
     if (image !== post.image) {

@@ -24,6 +24,8 @@ export type TPost = {
   content: any;
   path: string;
   author: TUser;
+  category: string;
+  readTime: number;
   tags: string[];
   type: "PUBLISHED" | "DRAFT";
   comments: TComment[];

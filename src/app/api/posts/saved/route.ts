@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const userID = await getDataFromToken(req);
     if (!userID)
       return NextResponse.json(
-        { success: false, message: "You are not authorize!" },
+        { success: false, message: "You are not authorized!" },
         { status: 401 }
       );
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     const userID = await getDataFromToken(req);
     if (!userID)
       return NextResponse.json(
-        { success: false, message: "You are not authorize" },
+        { success: false, message: "You are not authorized" },
         { status: 401 }
       );
 
@@ -71,14 +71,14 @@ export async function POST(req: NextRequest) {
       });
 
       return NextResponse.json(
-        { success: true, message: "Post saved for letter" },
+        { success: true, message: "Post saved for later" },
         { status: 201 }
       );
     } else {
       await prisma.savedPost.delete({ where: { id: savePosts.id } });
 
       return NextResponse.json(
-        { success: true, message: "Post removed from saved letter" },
+        { success: true, message: "Post removed from saved later" },
         { status: 200 }
       );
     }

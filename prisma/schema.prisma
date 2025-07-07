@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      = "mongodb://localhost:27017/Blog?authSource=admin?replicaSet=rs0"
 }
 
 model User {
@@ -49,6 +49,8 @@ model Post {
   path      String?
   image     String?
   content   Json?
+  category  String 
+  readTime  Int
   author    User        @relation(fields: [authorId], references: [id])
   authorId  String      @db.ObjectId
   tags      Tag[]       @relation(fields: [tagId], references: [id])

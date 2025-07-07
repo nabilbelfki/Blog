@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { title, content, image, type } = await req.json();
+    // Add category and readTime to the destructured request body
+    const { title, content, image, type, category, readTime } = await req.json();
     const makePath = title.split(" ").join("-").toLowerCase();
 
     let uploadedImage: CloudinaryUploadResult | null = null;
@@ -35,6 +36,8 @@ export async function POST(req: NextRequest) {
         authorId: userID,
         image: uploadedImage?.secure_url || null,
         type,
+        category: category || "", // Provide default if needed
+        readTime: readTime || 0,        // Provide default if needed
       },
       include: {
         author: {
